@@ -9,7 +9,7 @@ contract Tx {
 
     address public TxFactoryContractAddress;
 
-    string ipfsImage;
+    string public ipfsImage;
     string item;
     uint256 price;
     string sellerPhysicalAddress;
@@ -36,14 +36,6 @@ contract Tx {
 
     error Transfer__Failed();
 
-    event e_ImageUrl(string _imgUrl);
-    event e_ItemName(string _itemName);
-    event e_Price(uint256 _price);
-    event e_SellerPhysicalAddress(string _sellerPhysicalAddress);
-    event e_SellerAddress(address _sellerAddress);
-    event e_BuyerAddress(address _buyerAddress);
-    event e_SellerCollateral(uint256 _sellerCollateral);
-
     constructor(
         string memory _ipfsImage,
         string memory _item,
@@ -68,7 +60,6 @@ contract Tx {
         TxFactoryContractAddress = _TxFactoryContractAddress;
 
         sellerCollateral += _price;
-        emit e_SellerCollateral(sellerCollateral);
 
         TxFactory(TxFactoryContractAddress).setTransaction(
             seller,
@@ -209,9 +200,9 @@ contract Tx {
             buyer
         );
         (bool success0, ) = seller.call{
-            value: sellerCollateral.add(tipForSeller).add(costCollateral)
+            value: sellerCollateral.add(tipForSeller)
         }("");
-        (bool success1, ) = buyer.call{value: buyerCollateral.add(tipForBuyer)}(
+        (bool success1, ) = buyer.call{value: buyerCollateral.add(tipForBuyer).add(costCollateral)}(
             ""
         );
         if (!success0) {
@@ -230,13 +221,11 @@ contract Tx {
 
     //Getter functions
 
-    function getSellerAddress() public returns (address) {
-        emit e_SellerAddress(seller);
+    function getSellerAddress() public view returns (address) {
         return seller;
     }
 
-    function getBuyerAddress() public returns (address) {
-        emit e_BuyerAddress(buyer);
+    function getBuyerAddress() public view returns (address) {
         return buyer;
     }
 
@@ -252,18 +241,15 @@ contract Tx {
         return buyerCollateral;
     }
 
-    function getItem() public returns (string memory) {
-        emit e_ItemName(item);
+    function getItem() public view returns (string memory) {
         return item;
     }
 
-    function getPrice() public returns (uint256) {
-        emit e_Price(price);
+    function getPrice() public view returns (uint256) {
         return price;
     }
 
-    function getSellerPhysicalAddress() public returns (string memory) {
-        emit e_SellerPhysicalAddress(sellerPhysicalAddress);
+    function getSellerPhysicalAddress() public view returns (string memory) {
         return sellerPhysicalAddress;
     }
 
@@ -311,8 +297,7 @@ contract Tx {
         return costCollateral;
     }
 
-    function getIpfsImage() public returns (string memory) {
-        emit e_ImageUrl(ipfsImage);
+    function getIpfsImage() public view returns (string memory) {
         return ipfsImage;
     }
 }

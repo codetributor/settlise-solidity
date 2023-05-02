@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 import "./Tx.sol";
 
-contract TxFactory {
+contract TxFactory{
     address TxFactoryAddress;
     address TxContractAddress;
     uint256 id;
