@@ -45,12 +45,12 @@ contract TxFactory{
         s_transactionsArray.push(_txContractAddress);
     }
 
-    function removeTx(
-        address _transactionAddress,
-        address _seller,
-        address _buyer
-    ) public {
-        address[] memory transactionsArray = s_transactionsArray;
+    function setBuyerTransaction(address _buyer, address _txContractAddress) public {
+        transactions[_buyer].push(_txContractAddress);
+    }
+
+    function removeFromPublicArray(address _transactionAddress) public {
+         address[] memory transactionsArray = s_transactionsArray;
         for (uint256 i = 0; i < transactionsArray.length; i++) {
             if (transactionsArray[i] == _transactionAddress) {
                 s_transactionsArray[i] = transactionsArray[
@@ -59,6 +59,13 @@ contract TxFactory{
                 s_transactionsArray.pop();
             }
         }
+    }
+
+    function removeTx(
+        address _transactionAddress,
+        address _seller,
+        address _buyer
+    ) public {
         address[] memory sellerTransactions = transactions[_seller];
         for (uint256 i = 0; i < sellerTransactions.length; i++) {
             if (sellerTransactions[i] == _transactionAddress) {
@@ -99,5 +106,8 @@ contract TxFactory{
     }
     function getTransactions() public view returns(address[] memory) {
         return s_transactionsArray;
+    }
+    function getUserAddresses(address _userAddress) public view returns(address[] memory) {
+        return transactions[_userAddress];
     }
 }

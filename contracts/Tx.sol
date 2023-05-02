@@ -53,7 +53,6 @@ contract Tx {
         id = _id;
 
         seller = _sellerAddress;
-        buyer = address(0);
 
         ipfsImage = _ipfsImage;
 
@@ -71,6 +70,14 @@ contract Tx {
         require(
             msg.value == price * multipleOfPrice,
             "Not enough memony to purchase"
+        );
+        buyer=msg.sender;
+        TxFactory(TxFactoryContractAddress).setBuyerTransaction(
+            msg.sender,
+            address(this)
+        );
+        TxFactory(TxFactoryContractAddress).removeFromPublicArray(
+            address(this)
         );
         buyerPhysicalAddress = _buyerPhysicalAddress;
         buyer = msg.sender;
@@ -97,11 +104,6 @@ contract Tx {
     function payOutBuyer(address _msgSender) public {
         require(_msgSender == buyer, "You are not authorized to settle");
         if (dispute == false) {
-            TxFactory(TxFactoryContractAddress).removeTx(
-                address(this),
-                seller,
-                buyer
-            );
             (bool success0, ) = seller.call{
                 value: sellerCollateral.add(tipForSeller).add(costCollateral)
             }("");
@@ -160,11 +162,6 @@ contract Tx {
     function payOutSeller(address _msgSender) public {
         require(_msgSender == seller, "You are not authorized to settle");
         if (dispute == true && buyerSettled == true) {
-            TxFactory(TxFactoryContractAddress).removeTx(
-                address(this),
-                seller,
-                buyer
-            );
             (bool success0, ) = seller.call{
                 value: sellerCollateral.add(tipForSeller).add(costCollateral)
             }("");
@@ -194,11 +191,6 @@ contract Tx {
 
     function sellerRefund() public {
         require(msg.sender == seller, "You are not autherized to refund");
-        TxFactory(TxFactoryContractAddress).removeTx(
-            address(this),
-            seller,
-            buyer
-        );
         (bool success0, ) = seller.call{
             value: sellerCollateral.add(tipForSeller)
         }("");
