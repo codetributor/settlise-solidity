@@ -3,6 +3,9 @@ pragma solidity ^0.8.9;
 
 import "./Tx.sol";
 
+// yarn add @chainlink/contracts
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol"; //(1)
+
 contract TxFactory{
     address TxFactoryAddress;
     address TxContractAddress;
@@ -13,8 +16,23 @@ contract TxFactory{
 
     event Created(address _contractAddress);
 
+    AggregatorV3Interface internal immutable priceFeed; //(2)
     constructor() {
         id = 0;
+        priceFeed = AggregatorV3Interface(0x0715A7794a1dc8e42615F059dD6e406A6594651A);  //(3)
+    }
+
+    //(4)
+    function getLatestPrice() public view returns(uint){
+        (,int price,,,) = priceFeed.latestRoundData();
+        return uint(price);
+    }
+
+    //(5) 
+    function convertToWei(uint scaleAmount) public view returns(uint256){
+        // This function can also be implemented in frontend
+        uint256 amountInWei = 1e18*scaleAmount/getLatestPrice();
+        return amountInWei;
     }
 
     function createTxContract(
